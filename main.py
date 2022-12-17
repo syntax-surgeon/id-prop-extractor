@@ -1,10 +1,12 @@
+#!/home/syntax_surgeon/anaconda3/envs/joseml/bin/python
+
 # Import the necessary libraries
 import pubchempy as pcp
 import re
 import pathlib
 import signal
 import readchar
-import os
+import sys
 import time
 
 #Define functions to be used in main()
@@ -159,7 +161,7 @@ def handler(signum, frame): # Handles the interruption of the program via Ctrl-C
             print_stats(count-1, error_count) # Checking if the count has been initialized
         print('\033[1;33mAborting program...')
         time.sleep(0.5)
-        os.abort()
+        sys.exit(1)
     else:
         print('\n\033[1;34mResuming process...\033[0m\n') # Resuming the script if the user typed anything other than 'q'
 
@@ -209,15 +211,21 @@ def main(): # Primary script
                     # Get the properties for the current compound and write them to file
                     write_properties(current_mol, prop_file, selected_properties, all_properties)
 
+                except SystemExit: # Catching the SystemExit error bound to Ctrl-C
+                   break 
+                
                 except: # Catch any exception thrown by an empty compound object retrieved from PubChem
                     error_count += 1 # Incrementing the error count
                     not_found(prop_file) # Display error message
 
+            except SystemExit: # Catching the SystemExit error bound to Ctrl-C
+                break 
+                
             except: # Catch any exception thrown if no compound object was retrieved from PubChem
                 error_count += 1 # Incrementing the error count
                 not_found(prop_file) # Display error message
-    
-    print_stats(count, error_count) # Display final statistics
+        else:
+            print_stats(count, error_count) # Display final statistics
 
 
 # Defining global count variables to record progress and enable display of statistics after deliberate abortion
